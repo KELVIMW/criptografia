@@ -15,13 +15,13 @@ pip install rsa
 ## Executando o geraChaves
 
 
-##Executando o cifrarMsg
+## Executando o cifrarMsg
 
 
-##Executando o decifrarMsg
+## Executando o decifrarMsg
 
 
-##Autor
+## Autor
 
 * **Kelvin wellington** - [KelvimW](https://github.com/KELVIMW)
 

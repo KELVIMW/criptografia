@@ -1,35 +1,35 @@
-import rsa
-print ' \\-------------------------------//'
-print ' **Prj Banco de Dados Distribuidos**'
-print ' \\-------------------------------//'
-print 'Decifrador de mensagens'
-print 'Digite as seguintes informacoes'
-arqnomepri = raw_input('Endereco da chave privada (c:\chaves\myPri.txt): ')
-arqnomemsg = raw_input('Endereco e nome da mensagem a ser decifrada (c:\msg.txt): ')
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+import base64
+import zlib
 
-##abro o arquivo com a chave
-arq = open(arqnomepri,'r')
-##carrego a chave
-txt = ''
-for linha in arq:
-   txt = txt + linha
-arq.close()
+# Função de descriptografia
+def decrypt_blob(encrypted_blob, private_key):
 
-#decodifico para o formato expoente e modulo
-pri = rsa.PrivateKey.load_pkcs1(txt, format='PEM')
+    # Importar as chave privada e usar para descriptografia usando PKCS1_OAEP
+    rsakey = RSA.importKey(private_key)
+    rsakey = PKCS1_OAEP.new(rsakey)
+    # Decodifica(base64) e descriptografar os dados
+    encrypted_blob = base64.b64decode(encrypted_blob)
+    chunk_size = 512
+    decrypted = ""
+    chunk = encrypted_blob[0:0 + chunk_size]
+    decrypted = rsakey.decrypt(chunk)
 
-#abro o arquivo com a msg
-arq = open(arqnomemsg,'r')
-##carrego a msg cifrada
-msgc = ''
-for linha in arq:
-   msgc = msgc + linha
-arq.close()
+    # retorna os dados descriptografados descompactados
+    return zlib.decompress(decrypted)
 
-#decifro a msg
-msg = rsa.decrypt(msgc,pri)
+# Use a chave privada para descriptografia
+fd = open("private_key.pem", "rb")
+private_key = fd.read()
+fd.close()
 
-print 'Mensagem decifrada: ' + msg
+# Arquivo candidato a ser descriptografado
+fd = open("encrypted.txt", "rb")
+encrypted_blob = fd.read()
+fd.close()
 
-
-
+# Decodifica(utf-8) e exibe o conteúdo descriptografado
+msg = decrypt_blob(encrypted_blob, private_key)
+msg = msg.decode('utf-8')
+print(msg)
